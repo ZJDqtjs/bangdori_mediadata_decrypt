@@ -1,0 +1,23 @@
+{
+ "m_Enabled": 1,
+ "m_GameObject": "PPtr(m_FileID=0, m_PathID=-6258454543755019413, assetsfile=<SerializedFile>)",
+ "m_Name": "",
+ "m_Script": "PPtr(m_FileID=0, m_PathID=-9177589038217080147, assetsfile=<SerializedFile>)",
+ "leftAnchor": "<UnknownObject<AnchorPoint> target=PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>), relative=0.5, absolute=0>",
+ "rightAnchor": "<UnknownObject<AnchorPoint> target=PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>), relative=0.5, absolute=0>",
+ "bottomAnchor": "<UnknownObject<AnchorPoint> target=PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>), relative=0.5, absolute=0>",
+ "topAnchor": "<UnknownObject<AnchorPoint> target=PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>), relative=0.5, absolute=-204>",
+ "updateAnchors": 1,
+ "mColor": "ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)",
+ "mPivot": 4,
+ "mWidth": 2,
+ "mHeight": 2,
+ "mDepth": 0,
+ "boundless": 0,
+ "mMat": "PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>)",
+ "autoResizeBoxCollider": 0,
+ "hideIfOffScreen": 0,
+ "keepAspectRatio": 0,
+ "aspectRatio": 1.0,
+ "object_reader": "<ObjectReader MonoBehaviour>"
+}

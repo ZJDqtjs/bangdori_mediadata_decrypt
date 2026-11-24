@@ -1,0 +1,11 @@
+{
+ "m_Enabled": 1,
+ "m_GameObject": "PPtr(m_FileID=0, m_PathID=0, assetsfile=<SerializedFile>)",
+ "m_Name": "SoundBundleBuildData",
+ "m_Script": "PPtr(m_FileID=0, m_PathID=-7359197918601325688, assetsfile=<SerializedFile>)",
+ "acfFile": "",
+ "acbFiles": [
+  "<UnknownObject<SoundBundleData> formatType=0, bundleFileName='VoicePack.acb.bytes', cueSheetName='VoicePack', cacheFileName='VoicePack.acb', spilitFileNum=0>"
+ ],
+ "object_reader": "<ObjectReader MonoBehaviour>"
+}

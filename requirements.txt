@@ -1,0 +1,4 @@
+# 资源包还原依赖
+UnityPy>=1.20
+lz4
+Pillow
