@@ -5,3 +5,6 @@ venv/
 *.log
 .DS_Store
 Thumbs.db
+
+# 导出的游戏资源不纳入版本控制（版权归 Craft Egg / Bushiroad，且体积大）
+output/

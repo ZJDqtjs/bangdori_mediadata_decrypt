@@ -28,7 +28,7 @@ bangdori_mediadata_decrypt/
 │  ├─ abi_tool.py                索引解析、校验、改名、容器探测（零依赖）
 │  ├─ bangdream_extract.py       资源包批量还原导出（依赖 UnityPy）
 │  └─ unityfs.py                 纯手写 UnityFS 解包器（只依赖 lz4，可独立验证）
-├─ output/                       15 个资源包的实测导出结果
+├─ output/                       导出结果（15 个样本包），已在 .gitignore 中排除
 ├─ requirements.txt
 ├─ LICENSE                       MIT
 └─ README.md
@@ -116,6 +116,6 @@ python scripts/bangdream_extract.py --dir <data目录> --list
 ## 版权与许可
 
 - 本仓库的**代码与文档**采用 [MIT License](LICENSE)。
-- `output/` 下的游戏美术、音频、模型等资源版权归 **Craft Egg Inc. / Bushiroad / 相关权利人**所有，**不在 MIT 授权范围内**，仅作为技术验证的样本保留在本地。请勿再分发或商用。
+- `output/` 下的游戏美术、音频、模型等资源版权归 **Craft Egg Inc. / Bushiroad / 相关权利人**所有，**不在 MIT 授权范围内**。该目录已被 `.gitignore` 排除，仅保留在本地作为技术验证样本；使用本项目自行导出的产物亦请勿再分发或商用。
 
 本项目仅用于个人设备上已安装游戏的数据研究、备份与本地化尝试，不提供任何绕过正版验证、在线服务或联机功能的手段。
