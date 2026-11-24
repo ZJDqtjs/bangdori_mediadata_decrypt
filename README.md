@@ -27,8 +27,10 @@ bangdori_mediadata_decrypt/
 ├─ scripts/
 │  ├─ abi_tool.py                索引解析、校验、改名、容器探测（零依赖）
 │  ├─ bangdream_extract.py       资源包批量还原导出（依赖 UnityPy）
-│  └─ unityfs.py                 纯手写 UnityFS 解包器（只依赖 lz4，可独立验证）
-├─ output/                       导出结果（15 个样本包），已在 .gitignore 中排除
+│  ├─ unityfs.py                 纯手写 UnityFS 解包器（只依赖 lz4，可独立验证）
+│  ├─ usm2mp4.py                 CRI USM → MP4（mf/ 下的扭蛋动画）
+│  └─ parse_master_cache.py      metamap 解析 + master/cache 结构分析与解密
+├─ output/                       导出结果（15 个资源包 + 5 个 USM 转码），已在 .gitignore 中排除
 ├─ requirements.txt
 ├─ LICENSE                       MIT
 └─ README.md
@@ -105,12 +107,56 @@ python scripts/bangdream_extract.py --dir <data目录> --list
 
 注意 Live2D 用的是 **Cubism 2.1** 格式（`.moc` 魔术字为 `moc`，`.mtn` 文件头为 `# Live2D Animator Motion Data`），用 Cubism 2 Viewer 或 Live2DViewerEX 直接可看，不需要 moc3 工具。
 
+## USM 视频 → MP4
+
+`mf/*.usm.bytes` 是 CRI USM 容器（`CRID` 魔数 + `@SFV`/`@UTF` 块）。实测结构与解出来的内容：
+
+| 项 | 值 |
+|---|---|
+| CRID 头长度 | 2040 字节（其后 8 字节对齐填充，块序列从 `@SFV` 开始） |
+| 块 | 336 个；类型字符串统一为 `@SFV`（Sofdec2 视频块） |
+| 视频块 | 331 个，块体前 24 字节为块内头，之后是裸 H.264 |
+| 块内头 | `u16 24` \| `u16 本帧 NAL 数` \| `u32` \| `u32 pts`（每帧 +50）\| `u32 fps×100 = 6000` |
+| 编码 | H.264 High，448×336，**60 fps**，331 帧 ≈ 5.52 s（无损 `-c copy`） |
+
+```bash
+python scripts/usm2mp4.py --dir <mf目录> --out output/usm
+python scripts/usm2mp4.py <单个.usm.bytes> --out output/usm
+python scripts/usm2mp4.py --dir <mf目录> --raw      # 只抽 .264 裸流
+```
+
+脚本自动读块内头的 fps 交给 ffmpeg（否则封装出来的时长会错），本机没有 ffmpeg 时退化为只输出 `.264`。
+
+## master 目录：一个能解，一个是真加密
+
+`master/` 下两个文件性质完全不同，实测结论：
+
+| 文件 | 性质 | 结论 |
+|---|---|---|
+| `metamap/AssetBundleMetaMap` | 明文 protobuf，`repeated { sha256 = 1; { uint64 timestamp = 2.1 } }` | **可完整解析**：315 条，全部能与索引 join 上，时间戳是 epoch 毫秒 |
+| `master/cache` | 4 693 248 字节，16 字节对齐 | **真加密**，本地无密钥 |
+
+对 `master/cache` 做过的判定：熵 8.000、可打印字节仅 39.4%、16 字节块零重复（不是 ECB 重复块）、zlib/gzip/raw-deflate/lzma/bz2/zstd/brotli 全部解不开、周期 XOR 各相位主字节占比仅 0.007（等于随机）。另外用 `global-metadata.dat` 里 27594 个候选串（含 md5/sha1/sha256 派生）跑 AES-128/256 的 ECB、CBC(零 IV)、CBC(首块当 IV)，严格按“解出来必须能 inflate 或 4096 字节几乎全可打印”校验，**命中 0**。
+
+```bash
+# metamap：反查最近用过的资源（会与 AssetBundleInfo 对照表 join）
+python scripts/parse_master_cache.py metamap --metamap <AssetBundleMetaMap> --abi <AssetBundleInfo> -o output/metamap.csv
+
+# master/cache：结构与加密层报告
+python scripts/parse_master_cache.py report <master/cache>
+
+# 拿到 key 之后解密（自动识别 zlib / JSON / protobuf）
+python scripts/parse_master_cache.py decrypt <master/cache> --key <hex> --mode cbc --iv <hex> -o out.bin
+```
+
+密钥不在 `global-metadata.dat`、`settings/*`、`version` 里，应该在 native 层（`libil2cpp.so`）或由服务端下发。想继续往下走有两条路：一是从 APK 里取 `lib/arm64-v8a/libil2cpp.so` 定位解密函数；二是用抓包工具（Reqable 之类）抓 master 数据下发接口，密钥/IV 有可能就在响应或请求头里。
+
 ## 已知限制与待办
 
 - 只拷了 15 个样本包，2253 个全量尚未跑完；流程一致，直接对整个 `data` 目录执行即可。
 - `AudioClip` 导出路径已写好，但这批样本没有 sound 包，未实测。
-- `mf/*.usm.bytes` 是 Criware USM，需要 vgmstream 才能转封装成 MP4。
-- `master/cache`、`metamap/AssetBundleMetaMap` 为同风格 protobuf，尚未解析。
+- `master/cache` 未解开，缺密钥（见上一节）。
+- `version`（528 字节）同样是加密块，结构与 master/cache 类似，尚未解。
 - `log/log-*.log` 为二进制混淆格式，尚未解析。
 
 ## 版权与许可
